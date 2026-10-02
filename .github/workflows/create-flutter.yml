@@ -1,0 +1,34 @@
+name: Create Flutter Project
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: "Project name (lowercase and underscores)"
+        required: true
+        default: my_app
+      org:
+        description: "Organization (e.g. com.yourname)"
+        required: true
+        default: com.example
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create project
+        env:
+          PROJECT: ${{ inputs.project_name }}
+          ORG: ${{ inputs.org }}
+        run: |
+          flutter create --empty --org "$ORG" --platforms=android,ios,web,windows,macos,linux "$PROJECT"
+          zip -r "$PROJECT.zip" "$PROJECT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flutter-project
+          path: ${{ inputs.project_name }}.zip
